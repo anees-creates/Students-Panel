@@ -1,13 +1,20 @@
 <?php
 include '../common/session_handler.php';
-if (isset($_POST['submit'])){
-  include '../component/connection.php';
-  $course_name=$_POST["Name"];
-  $credit_hours=(int)$_POST["hours"];
-  
-  $query="INSERT INTO courses(Name,`Credit hours`)VALUES('$course_name','$credit_hours')";
-  $execute=mysqli_query($conn,$query);
-  
+include '../component/connection.php'; // Include connection here, outside the if block
+
+if (isset($_POST['submit'])) {
+    $course_name = $_POST["Name"];
+    $credit_hours = (int)$_POST["hours"];
+
+    $query = "INSERT INTO courses(Name,`Credit hours`)VALUES('$course_name','$credit_hours')";
+    $execute = mysqli_query($conn, $query);
+
+    if ($execute) {
+        $message = "<div style='background-color: #d4edda; color: #155724; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px; margin-bottom: 10px; text-align: center; width: 40%; margin: 20px auto; background-color: #c2f0c2;'>Course added successfully!</div>"; // Green background
+        
+    } else {
+        $message = "<div style='background-color: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 5px; margin-bottom: 10px; text-align: center; width: 40%; margin: 20px auto; background-color: #f5c6cb;'>Error: " . mysqli_error($conn) . "</div>"; // Red background
+    }
 }
 ?>
 <html>
@@ -27,7 +34,6 @@ if (isset($_POST['submit'])){
             display: flex;
             justify-content: center; /* Center horizontally */
             align-items: flex-start; /* Align to the top */
-            
         }
 
         .form-container { /* Renamed to form-container */
@@ -98,7 +104,15 @@ if (isset($_POST['submit'])){
 </head>
 <body>
     <?php include '../component/sidebar.php'; ?>
-    
+    <?php
+    // Force the message to display (for testing)
+    if (isset($message)) {
+        echo $message;
+    } else {
+        echo "<p>Message is not set.</p>";
+    }
+    ?>
+
     <div class="content-area">
         <div class="form-container">
             <h2>Add New Course</h2>

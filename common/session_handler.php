@@ -8,7 +8,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 }
 
 // Now, the user is logged in, so you can display the welcome content
-echo "Welcome, " . $_SESSION['username'] . "!";
+
 // ... rest of your welcome page content ...
 
 ?>

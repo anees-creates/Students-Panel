@@ -8,29 +8,41 @@ $sql_degrees = "SELECT D_ID, dname FROM degrees";
 $result_degrees = mysqli_query($conn, $sql_degrees);
 $degrees = mysqli_fetch_all($result_degrees, MYSQLI_ASSOC);
 
-// Handle form submission (only if JavaScript validation passes)
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $_POST['form_validated'] == 'true') {
-    $sname = $_POST['student_name'];
-    $email = $_POST['student_email'];
-    $cnic = $_POST['student_cnic'];
-    $gender = $_POST['student_gender'];
-    $dob_raw = $_POST['student_dob'];
+$errors = []; // Array to store validation errors
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $student_name = $_POST['student_name'];
+    $student_email = $_POST['student_email'];
+    $student_cnic = $_POST['student_cnic'];
+    $student_gender = $_POST['student_gender'];
+    $student_dob = $_POST['student_dob']; // Assuming <input type="date">
     $degree_id = $_POST['student_degree'];
 
-    // Process date format (convert mm/dd/yyyy to yyyy-mm-dd for database)
-    $dob_parts = explode('/', $dob_raw);
-    if (count($dob_parts) === 3 && checkdate($dob_parts[0], $dob_parts[1], $dob_parts[2])) {
-        $dob = $dob_parts[2] . '-' . $dob_parts[0] . '-' . $dob_parts[1];
-    } else {
-        $dob = null; // Or handle invalid date error
+    // --- Server-Side Validation ---
+    if (empty($student_name)) {
+        $errors['student_name'] = "Student Name is required.";
+    }
+    if (empty($student_email) || !filter_var($student_email, FILTER_VALIDATE_EMAIL)) {
+        $errors['student_email'] = "Invalid or missing Student Email.";
+    }
+    if (empty($student_cnic) || !preg_match('/^[0-9]{13}$/', $student_cnic)) {
+        $errors['student_cnic'] = "CNIC must be 13 digits.";
+    }
+    if (empty($student_gender)) {
+        $errors['student_gender'] = "Gender is required.";
+    }
+    if (empty($student_dob)) {
+        $errors['student_dob'] = "Date of Birth is required.";
+    }
+    if (empty($degree_id)) {
+        $errors['student_degree'] = "Please select a Degree.";
     }
 
-    // Handle file upload
-    // Handle file upload
-    $picture_path = '';
+    // Handle file upload (validation can be added here if needed)
+    $student_picture_path = '';
     if (isset($_FILES['student_picture']) && $_FILES['student_picture']['error'] === UPLOAD_ERR_OK) {
         $file_name = $_FILES['student_picture']['name'];
-        $file_tmp = $_FILES['student_picture']['tmp_name'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         $allowed_ext = array('jpg', 'jpeg', 'png');
         $upload_dir = '../img/';
@@ -38,37 +50,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $
         if (in_array($file_ext, $allowed_ext)) {
             $unique_name = 'student_' . time() . '_' . uniqid() . '.' . $file_ext;
             $destination = $upload_dir . $unique_name;
-
-            if (move_uploaded_file($file_tmp, $destination)) {
-                $picture_path = '../img/' . $unique_name;
+            if (move_uploaded_file($_FILES['student_picture']['tmp_name'], $destination)) {
+                $student_picture_path = '../img/' . $unique_name;
             } else {
-                // Error moving file
-                $picture_path = ''; // Or handle the error as needed
+                $errors['student_picture'] = "Error uploading picture.";
                 error_log("Error moving uploaded file to: " . $destination);
             }
         } else {
-            // Invalid file type
-            $picture_path = ''; // Or handle the error
+            $errors['student_picture'] = "Invalid picture format (jpg, jpeg, png allowed).";
         }
     }
 
-    // Insert student data into the database
-    $sql_insert = "INSERT INTO students (sname, pic, email, cnic, gender, dob, D_ID) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt_insert = mysqli_prepare($conn, $sql_insert);
-    mysqli_stmt_bind_param($stmt_insert, "ssssssi", $sname, $picture_path, $email, $cnic, $gender, $dob, $degree_id);
+    // If there are no validation errors, proceed with database insertion
+    if (empty($errors)) {
+        $sql_insert = "INSERT INTO students (sname, pic, email, cnic, gender, DOB, D_ID) VALUES ('$student_name', '$student_picture_path', '$student_email', '$student_cnic', '$student_gender', '$student_dob', '$degree_id')";
 
-    if (mysqli_stmt_execute($stmt_insert)) {
-        $_SESSION['message'] = "Student registered successfully!";
-        $_SESSION['message_type'] = 'success';
-        header("Location: students_list.php"); // You'll create this page later
-        exit();
+        if (mysqli_query($conn, $sql_insert)) {
+            $_SESSION['message'] = "Student registered successfully!";
+            $_SESSION['message_type'] = 'success';
+            header("Location: students_list.php");
+            exit();
+        } else {
+            $_SESSION['message'] = "Error registering student: " . mysqli_error($conn);
+            $_SESSION['message_type'] = 'error';
+            header("Location: add_student.php");
+            exit();
+        }
     } else {
-        $_SESSION['message'] = "Error registering student: " . mysqli_error($conn);
+        // Display validation errors
+        $_SESSION['message'] = "Please correct the form errors.";
         $_SESSION['message_type'] = 'error';
         header("Location: add_student.php");
         exit();
     }
-    mysqli_stmt_close($stmt_insert);
 }
 ?>
 
@@ -79,71 +93,108 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New Student</title>
     <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 20px;
+        }
+
         .form-container {
-            width: 50%; /* Adjust width as needed */
-            margin: 20px auto; /* Adjusted top margin */
-            padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #fff;
+            padding: 30px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            margin-top:0px;
-            margin-left:440px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            margin-top:100px;
+            margin-right:320px;
         }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: bold;
+            color: #555;
         }
+
         input[type="text"],
         input[type="email"],
         input[type="number"],
         input[type="date"],
         input[type="file"],
         select {
-            width: 100%;
-            padding: 8px;
+            width: calc(100% - 16px);
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            font-size: 1em;
         }
+
+        .gender-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
         .gender-group label {
-            display: inline-block;
-            margin-right: 10px;
             font-weight: normal;
+            margin-bottom: 0;
         }
+
         button {
             background-color: #007bff;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            width: 100%;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         .message-container {
-            width: 50%;
-            margin: 20px auto;
-            padding: 15px;
+            width: 80%;
+            margin: 25px auto;
+            padding: 18px;
             border-radius: 5px;
             text-align: center;
+            font-size: 1em;
         }
+
         .message-container.success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .message-container.error {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        .error-message {
+
+        .error {
             color: red;
             font-size: 0.9em;
             margin-top: 5px;
@@ -160,28 +211,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $
             unset($_SESSION['message_type']);
         }
         ?>
-        <form method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
-            <input type="hidden" name="form_validated" id="form_validated" value="false">
+        <form method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="student_name">Student Name</label>
                 <input type="text" id="student_name" name="student_name" required>
-                <div class="error-message" id="name_error"></div>
+                <?php if (isset($errors['student_name'])) echo '<div class="error">' . $errors['student_name'] . '</div>'; ?>
             </div>
             <div class="form-group">
                 <label for="student_picture">Student Picture</label>
                 <input type="file" id="student_picture" name="student_picture" accept="image/*">
-                <small>Allowed formats: jpg, jpeg, png</small>
-                <div class="error-message" id="picture_error"></div>
+                <small style="color: #777;">Allowed formats: jpg, jpeg, png</small>
+                <?php if (isset($errors['student_picture'])) echo '<div class="error">' . $errors['student_picture'] . '</div>'; ?>
             </div>
             <div class="form-group">
                 <label for="student_email">Student Email</label>
                 <input type="email" id="student_email" name="student_email" required>
-                <div class="error-message" id="email_error"></div>
+                <?php if (isset($errors['student_email'])) echo '<div class="error">' . $errors['student_email'] . '</div>'; ?>
             </div>
             <div class="form-group">
                 <label for="student_cnic">Student CNIC (13 digits)</label>
                 <input type="text" id="student_cnic" name="student_cnic" pattern="[0-9]{13}" title="Enter a 13-digit CNIC number" required>
-                <div class="error-message" id="cnic_error"></div>
+                <?php if (isset($errors['student_cnic'])) echo '<div class="error">' . $errors['student_cnic'] . '</div>'; ?>
             </div>
             <div class="form-group">
                 <label>Student Gender</label>
@@ -192,13 +242,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $
                     <label for="gender_female">Female</label>
                     <input type="radio" id="gender_others" name="student_gender" value="Others">
                     <label for="gender_others">Others</label>
-                    <div class="error-message" id="gender_error"></div>
                 </div>
+                <?php if (isset($errors['student_gender'])) echo '<div class="error">' . $errors['student_gender'] . '</div>'; ?>
             </div>
             <div class="form-group">
-                <label for="student_dob">Student DOB (mm/dd/yyyy)</label>
-                <input type="text" id="student_dob" name="student_dob" placeholder="mm/dd/yyyy" pattern="(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}" title="Enter date in mm/dd/yyyy format" required>
-                <div class="error-message" id="dob_error"></div>
+                <label for="student_dob">Student DOB</label>
+                <input type="date" id="student_dob" name="student_dob" required>
+                <?php if (isset($errors['student_dob'])) echo '<div class="error">' . $errors['student_dob'] . '</div>'; ?>
             </div>
             <div class="form-group">
                 <label for="student_degree">Student Degree</label>
@@ -208,81 +258,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['form_validated']) && $
                         <option value="<?php echo $degree['D_ID']; ?>"><?php echo htmlspecialchars($degree['dname']); ?></option>
                     <?php endforeach; ?>
                 </select>
-                <div class="error-message" id="degree_error"></div>
+                <?php if (isset($errors['student_degree'])) echo '<div class="error">' . $errors['student_degree'] . '</div>'; ?>
             </div>
-            <button type="submit" onclick="document.getElementById('form_validated').value = 'true';">Register</button>
+            <button type="submit">Register</button>
         </form>
     </div>
-
-    <script>
-        function validateForm() {
-            let isValid = true;
-
-            // Reset error messages
-            document.getElementById("name_error").innerText = "";
-            document.getElementById("email_error").innerText = "";
-            document.getElementById("cnic_error").innerText = "";
-            document.getElementById("gender_error").innerText = "";
-            document.getElementById("dob_error").innerText = "";
-            document.getElementById("degree_error").innerText = "";
-
-            // Check Student Name
-            const nameInput = document.getElementById("student_name");
-            if (nameInput.value.trim() === "") {
-                document.getElementById("name_error").innerText = "Student Name is required.";
-                isValid = false;
-            }
-
-            // Check Student Email
-            const emailInput = document.getElementById("student_email");
-            if (emailInput.value.trim() === "") {
-                document.getElementById("email_error").innerText = "Student Email is required.";
-                isValid = false;
-            } else {
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailPattern.test(emailInput.value)) {
-                    document.getElementById("email_error").innerText = "Invalid email format.";
-                    isValid = false;
-                }
-            }
-
-            // Check Student CNIC
-            const cnicInput = document.getElementById("student_cnic");
-            if (cnicInput.value.trim() === "") {
-                document.getElementById("cnic_error").innerText = "Student CNIC is required.";
-                isValid = false;
-            } else if (!/^[0-9]{13}$/.test(cnicInput.value)) {
-                document.getElementById("cnic_error").innerText = "CNIC must be 13 digits.";
-                isValid = false;
-            }
-
-            // Check Student Gender
-            const genderRadios = document.querySelectorAll('input[name="student_gender"]:checked');
-            if (genderRadios.length === 0) {
-                document.getElementById("gender_error").innerText = "Please select a gender.";
-                isValid = false;
-            }
-
-            // Check Student DOB
-            const dobInput = document.getElementById("student_dob");
-            if (dobInput.value.trim() === "") {
-                document.getElementById("dob_error").innerText = "Date of Birth is required.";
-                isValid = false;
-            } else if (!/^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/.test(dobInput.value)) {
-                document.getElementById("dob_error").innerText = "Invalid date format (mm/dd/yyyy).";
-                isValid = false;
-            }
-
-            // Check Student Degree
-            const degreeSelect = document.getElementById("student_degree");
-            if (degreeSelect.value === "") {
-                document.getElementById("degree_error").innerText = "Please select a degree.";
-                isValid = false;
-            }
-
-            return isValid;
-        }
-    </script>
 </body>
 </html>
 

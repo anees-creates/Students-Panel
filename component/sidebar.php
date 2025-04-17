@@ -137,7 +137,7 @@
                                     <a class="nav-link " href="/Login Project/Pages/addstudent.php">Add Student</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/Login Project/Pages/managestudent.php">Manage Student</a>
+                                    <a class="nav-link" href="/Login Project/Pages/Manage students.php">Manage Student</a>
                                 </li>
                             </ul>
                         </li>

@@ -41,6 +41,7 @@
                background-color: #f4f4f4;
                padding-left: 300px;
                box-sizing: border-box;
+               margin-top:-180px;
            }
            .table-container {
                background-color: white;
@@ -49,6 +50,7 @@
                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                width: 80%;
                overflow-x: auto;
+               margin-top:0px;
            }
            table {
                width: 100%;
@@ -111,7 +113,7 @@
        <div class="container">
            <div class="table-container">
                
-               <a href="add_degrees.php" class="add-button">Add New Degree</a>
+               <a href="Add degree.php" class="add-button">Add New Degree</a>
    
                <?php
                if (isset($_SESSION['message'])) {

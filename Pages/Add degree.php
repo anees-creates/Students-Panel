@@ -1,5 +1,8 @@
-<?php include '../component/connection.php';// Include your database connection
+<?php 
+ob_start();
+include '../component/connection.php';// Include your database connection
 include '../component/sidebar.php';
+include '../common/session_handler.php';
 
 // Fetch courses from the database
 $sql = "SELECT C_ID, Name FROM courses";
@@ -18,17 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sql_insert = "INSERT INTO degrees (dname, fee, C_ID) VALUES ('$dname', '$fee', '$C_ID')";
     if (mysqli_query($conn, $sql_insert)) {
         // Set success message in session
-        session_start();
+        
         $_SESSION['message'] = "Degree added successfully.";
 
         // Redirect to the degrees list page
-        header("Location: degrees_list.php"); // Create this page later
+        header('Location:Add degree.php');
+         // Create this page later
         exit();
     } else {
         // Handle error
-        session_start();
+        
         $_SESSION['message'] = "Error: " . mysqli_error($conn);
-        header("Location: degrees_list.php");
+        header('Location:Add degree.php');
         exit();
     }
 }
@@ -117,5 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </html>
 
 <?php
-mysqli_close($conn); // Close the database connection
+mysqli_close($conn);
+ob_end_flush(); 
 ?>

@@ -18,6 +18,7 @@
             left: 250px;
             width: calc(100% - 250px);
             z-index: 100;
+            
         }
 
         .top-bar h1 {

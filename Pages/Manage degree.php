@@ -41,11 +41,12 @@
                background-color: #f4f4f4;
                padding-left: 300px;
                box-sizing: border-box;
-               margin-top:-180px;
+               margin-top:-70px;
+               margin-left:200px;
            }
            .table-container {
                background-color: white;
-               padding: 20px;
+               padding: 10px;
                border-radius: 8px;
                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                width: 80%;

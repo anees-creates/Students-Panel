@@ -1,4 +1,5 @@
 <?php
+ob_strat();
 include '../component/connection.php';
 include '../common/session_handler.php';
 include '../component/sidebar.php';
@@ -268,4 +269,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php
 mysqli_close($conn);
+ob_end_flush();
 ?>

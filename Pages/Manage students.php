@@ -168,7 +168,7 @@ mysqli_close($conn);
                                 <a href="edit_student.php?s_id=<?php echo $student['S_ID']; ?>" title="Edit">
                                     <i class="fas fa-pencil-alt"></i>
                                 </a>
-                                <a href="delete_student.php?s_id=<?php echo $student['S_ID']; ?>" class="delete-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this student?');">
+                                <a href="Delete_students.php?s_id=<?php echo $student['S_ID']; ?>" class="delete-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this student?');">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
                             </td>

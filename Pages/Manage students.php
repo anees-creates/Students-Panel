@@ -168,8 +168,7 @@ mysqli_close($conn);
                                 <a href="edit_student.php?s_id=<?php echo $student['S_ID']; ?>" title="Edit">
                                     <i class="fas fa-pencil-alt"></i>
                                 </a>
-                                <a href="Delete_students.php?s_id=<?php echo $student['S_ID']; ?>" class="delete-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this student?');">
-                                    <i class="fas fa-trash-alt"></i>
+                                <a href="#" class="delete-btn" onclick="confirmDelete('Delete_students.php?s_id=<?php echo $student['S_ID']; ?>')">                                    <i class="fas fa-trash-alt"></i>
                                 </a>
                             </td>
                         </tr>
@@ -180,5 +179,29 @@ mysqli_close($conn);
             <p style="text-align: center;">No student records found.</p>
         <?php endif; ?>
     </div>
+    <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;">
+  <div style="background:pink; padding:20px; border-radius:10px; text-align:center; min-width:300px;">
+    <p style="margin-bottom: 20px;">Are you sure you want to delete this record?</p>
+    <button onclick="proceedDelete()" style="padding:8px 16px; margin-right:10px;">Yes</button>
+    <button onclick="closeConfirm()" style="padding:8px 16px;">No</button>
+  </div>
+</div>
+<script>
+  let deleteUrl = '';
+
+  function confirmDelete(url) {
+    deleteUrl = url;
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  function proceedDelete() {
+    window.location.href = deleteUrl;
+  }
+
+  function closeConfirm() {
+    deleteUrl = '';
+    document.getElementById('overlay').style.display = 'none';
+  }
+</script>
 </body>
 </html>

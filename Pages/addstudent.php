@@ -1,5 +1,5 @@
 <?php
-ob_strat();
+ob_start();
 include '../component/connection.php';
 include '../common/session_handler.php';
 include '../component/sidebar.php';

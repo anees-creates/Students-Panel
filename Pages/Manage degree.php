@@ -147,8 +147,10 @@
                                    <td><?php echo getCourseNames($conn, $degree['C_ID']); ?></td>
                                    <td class="action-icons">
                                        <a href="edit_degree.php?id=<?php echo $degree['D_ID']; ?>" class="edit"><i class="fas fa-edit"></i></a>
-                                       <a href="delete_degree.php?id=<?php echo $degree['D_ID']; ?>" class="delete" ><i class="fas fa-trash-alt"></i></a>
-                                   </td>
+                                       <a href="#" class="delete" onclick="confirmDelete('delete_degree.php?id=<?php echo $degree['D_ID']; ?>')">
+                                            <i class="fas fa-trash-alt"></i>
+                                           </a>
+                                  </td>
                                </tr>
                            <?php endforeach; ?>
                        <?php endif; ?>
@@ -156,6 +158,37 @@
                </table>
            </div>
        </div>
+
+
+
+
+       <!-- Custom Confirm Modal -->
+<div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;">
+  <div style="background:pink; padding:20px; border-radius:10px; text-align:center; min-width:300px;">
+    <p style="margin-bottom: 20px;">Are you sure you want to delete this record?</p>
+    <button onclick="proceedDelete()" style="padding:8px 16px; margin-right:10px;">Yes</button>
+    <button onclick="closeConfirm()" style="padding:8px 16px;">No</button>
+  </div>
+</div>
+
+<script>
+  let deleteUrl = '';
+
+  function confirmDelete(url) {
+    deleteUrl = url;
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  function proceedDelete() {
+    window.location.href = deleteUrl;
+  }
+
+  function closeConfirm() {
+    deleteUrl = '';
+    document.getElementById('overlay').style.display = 'none';
+  }
+</script>
+
    </body>
    </html>
    

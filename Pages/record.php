@@ -1,7 +1,7 @@
 <?php
 include '../component/connection.php';
 include '../common/session_handler.php';
-
+include '../component/sidebar.php';
 // Fetch degrees for the dropdown
 $sql_degrees = "SELECT DISTINCT dname, D_ID FROM degrees";
 $result_degrees = mysqli_query($conn, $sql_degrees);
@@ -20,27 +20,45 @@ if (isset($_POST['submit_report'])) {
     $selected_degree_id = mysqli_real_escape_string($conn, $_POST['degree_id']);
     $selected_course_id = mysqli_real_escape_string($conn, $_POST['course_id']);
 
-    // Construct the SQL query to fetch matching students
-    // **You'll need to adjust this query based on your actual database schema
-    // and how students, degrees, and courses are related.**
+    $where_conditions = [];
+    $bind_types = "";
+    $bind_params = [];
+
     $sql_report = "SELECT
-    s.S_ID,
-    s.sname,
-    d.dname AS degree_name,
-    c.Name AS course_name,
-    d.fee
-FROM
-    students s
-JOIN
-    degrees d ON s.D_ID = d.D_ID
-JOIN
-    courses c ON FIND_IN_SET(c.C_ID, d.C_ID)  -- Link courses based on the degree's C_ID list
-WHERE
-    s.D_ID = ? AND
-    c.C_ID = ?;";
+                        s.S_ID,
+                        s.sname,
+                        d.dname AS degree_name,
+                        c.Name AS course_name,
+                        d.fee
+                    FROM
+                        students s
+                    JOIN
+                        degrees d ON s.D_ID = d.D_ID
+                    JOIN
+                        courses c ON FIND_IN_SET(c.C_ID, d.C_ID)";
+
+    if (!empty($selected_degree_id)) {
+        $where_conditions[] = "s.D_ID = ?";
+        $bind_types .= "i";
+        $bind_params[] = &$selected_degree_id;
+    }
+
+    if (!empty($selected_course_id)) {
+        $where_conditions[] = "c.C_ID = ?";
+        $bind_types .= "i";
+        $bind_params[] = &$selected_course_id;
+    }
+
+    if (!empty($where_conditions)) {
+        $sql_report .= " WHERE " . implode(" AND ", $where_conditions);
+    }
 
     $stmt_report = mysqli_prepare($conn, $sql_report);
-    mysqli_stmt_bind_param($stmt_report, "ii", $selected_degree_id, $selected_course_id);
+
+    if (!empty($bind_params)) {
+        mysqli_stmt_bind_param($stmt_report, $bind_types, ...$bind_params);
+    }
+
     mysqli_stmt_execute($stmt_report);
     $result_report = mysqli_stmt_get_result($stmt_report);
     $report_data = mysqli_fetch_all($result_report, MYSQLI_ASSOC);
@@ -60,12 +78,13 @@ mysqli_close($conn);
         /* Basic CSS for the form and table */
         body { font-family: sans-serif; margin: 20px; }
         h2 { text-align: center; margin-bottom: 20px; }
-        form { margin-bottom: 20px; text-align: center; }
-        select { padding: 8px; margin: 0 10px; }
+        form { margin-bottom: 20px; margin-left:30%;text-align: center; }
+        select { padding: 8px; margin: 0px 10px; }
         button { padding: 10px 20px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table { width: 70%; border-collapse: collapse; margin-top: 20px; margin-left:30%; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        p{margin-left:30%;}
     </style>
 </head>
 <body>
@@ -96,7 +115,7 @@ mysqli_close($conn);
     </form>
 
     <?php if (!empty($report_data)): ?>
-        <h3>Matching Students:</h3>
+        
         <table>
             <thead>
                 <tr>
@@ -120,7 +139,7 @@ mysqli_close($conn);
             </tbody>
         </table>
     <?php elseif (isset($_POST['submit_report'])): ?>
-        <p>No students found matching the selected degree and course.</p>
+        <p>No students found matching the selected criteria.</p>
     <?php endif; ?>
 
 </body>

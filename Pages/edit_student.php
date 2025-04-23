@@ -318,7 +318,7 @@ mysqli_close($conn);
 
                 <button type="submit">Update Student</button>
             </form>
-            <p><a href="read_student.php">Back to Student Records</a></p>
+            <p><a href="Manage students.php">Back to Student Records</a></p>
         </div>
     </div>
     <?php 

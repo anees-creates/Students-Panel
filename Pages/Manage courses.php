@@ -76,7 +76,9 @@
 </head>
 <body>
 
+
     <div class="courses-container">
+        
         <h2>Courses List</h2>
         <div class="table-responsive">
             <table class="courses-table">
@@ -98,8 +100,7 @@
                             echo "<td>" . $row['Credit hours'] . "</td>";
                             echo "<td class='action-icons'>";
                             echo "<a href='updatecourses.php?id=" . $row['C_ID'] . "'><i class='bi bi-pencil-square'></i></a>";
-                            echo "<a href='delete_course.php?id=" . $row['C_ID'] . "'><i class='bi bi-trash'></i></a>";
-                            echo "</td>";
+                            echo "<a href='#' onclick=\"confirmDelete('delete_course.php?id=" . $row['C_ID'] . "')\"><i class='bi bi-trash'></i></a>";                            echo "</tr>";
                             echo "</tr>";
                         }
                     } else {
@@ -110,7 +111,32 @@
             </table>
         </div>
     </div>
+      <!-- Custom Confirm Modal -->
+      <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;">
+  <div style="background:pink; padding:20px; border-radius:10px; text-align:center; min-width:300px;">
+    <p style="margin-bottom: 20px;">Are you sure you want to delete this record?</p>
+    <button onclick="proceedDelete()" style="padding:8px 16px; margin-right:10px;">Yes</button>
+    <button onclick="closeConfirm()" style="padding:8px 16px;">No</button>
+  </div>
+</div>
 
+<script>
+  let deleteUrl = '';
+
+  function confirmDelete(url) {
+    deleteUrl = url;
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  function proceedDelete() {
+    window.location.href = deleteUrl;
+  }
+
+  function closeConfirm() {
+    deleteUrl = '';
+    document.getElementById('overlay').style.display = 'none';
+  }
+</script>
 </body>
 </html>
 

@@ -9,11 +9,12 @@ $sql = "SELECT C_ID, Name FROM courses";
 $result = mysqli_query($conn, $sql);
 $courses = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $dname = $_POST['degree_name'];
     $fee = $_POST['fee'];
     $selected_courses = $_POST['courses']; // Array of selected course IDs
-
+    
     // Convert course IDs to comma-separated string
     $C_ID = implode(',', $selected_courses);
 

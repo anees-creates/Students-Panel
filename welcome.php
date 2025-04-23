@@ -1,13 +1,26 @@
 <?php
 ob_start();
 include 'component/sidebar.php';
+include 'component/connection.php';
 session_start(); // Start the session at the beginning of the file
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("location: index.php"); // Redirect to login if not logged in
     exit();
 }
+$sql_s = "SELECT COUNT(*) AS total_rows FROM students";
+                    
+$sql_d = "SELECT COUNT(*) AS total_rows FROM degrees";
+$sql_c = "SELECT COUNT(*) AS total_rows FROM courses";
 
+$result_s = mysqli_query($conn, $sql_s);
+$students = mysqli_fetch_all($result_s, MYSQLI_ASSOC);
+
+$result_d = mysqli_query($conn, $sql_d);
+$degrees = mysqli_fetch_all($result_d, MYSQLI_ASSOC);
+
+$result_c = mysqli_query($conn, $sql_c);
+$courses = mysqli_fetch_all($result_c, MYSQLI_ASSOC);
 
 ?>
 
@@ -114,17 +127,17 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         <div class="cards">
             <div class="card">
                 <i class="fas fa-user-graduate"></i>
-                <h2>500+</h2>
+                <h2><?php echo $students[0]['total_rows'] ?>+</h2>
                 <p>Students</p>
             </div>
             <div class="card">
                 <i class="fas fa-book"></i>
-                <h2>200+</h2>
+                <h2><?php echo $courses[0]['total_rows'] ?>+</h2>
                 <p>Courses</p>
             </div>
             <div class="card">
                 <i class="fas fa-university"></i>
-                <h2>50+</h2>
+                <h2><?php echo $degrees[0]['total_rows'] ?>+</h2>
                 <p>Degrees</p>
             </div>
             <div class="card">

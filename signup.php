@@ -8,39 +8,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["username"];
     $password = $_POST["password"];
     $cpassword = $_POST["cpassword"];
+    // --- ADDED THIS LINE ---
+    $email = $_POST["email"];
+    // -----------------------
 
     // Check if username already exists
-    $sql_check = "SELECT username FROM users WHERE username = ?";
-    $stmt_check = mysqli_prepare($conn, $sql_check);
-    mysqli_stmt_bind_param($stmt_check, "s", $username);
-    mysqli_stmt_execute($stmt_check);
-    mysqli_stmt_store_result($stmt_check);
+    $sql_check_username = "SELECT username FROM users WHERE username = ?";
+    $stmt_check_username = mysqli_prepare($conn, $sql_check_username);
+    mysqli_stmt_bind_param($stmt_check_username, "s", $username);
+    mysqli_stmt_execute($stmt_check_username);
+    mysqli_stmt_store_result($stmt_check_username);
 
-    if (mysqli_stmt_num_rows($stmt_check) > 0) {
-        $showerror = "Username already exists.";
+    // --- ADDED THIS BLOCK ---
+    // Check if email is empty
+    if (empty($email)) {
+        $showerror = "Please enter your email address.";
     } else {
-        if ($password == $cpassword) {
+        // Check if email already exists
+        $sql_check_email = "SELECT email FROM users WHERE email = ?";
+        $stmt_check_email = mysqli_prepare($conn, $sql_check_email);
+        mysqli_stmt_bind_param($stmt_check_email, "s", $email);
+        mysqli_stmt_execute($stmt_check_email);
+        mysqli_stmt_store_result($stmt_check_email);
 
-            // Hash the password
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-            // Insert the new user
-            $sql_insert = "INSERT INTO users (username, password, dt) VALUES (?, ?, current_timestamp())";
-            $stmt_insert = mysqli_prepare($conn, $sql_insert);
-            mysqli_stmt_bind_param($stmt_insert, "ss", $username, $hashed_password);
-
-            if (mysqli_stmt_execute($stmt_insert)) {
-                $showalert = true;
-            } else {
-                $showerror = "Database error: " . mysqli_error($conn);
-            }
-            mysqli_stmt_close($stmt_insert);
-
+        if (mysqli_stmt_num_rows($stmt_check_email) > 0) {
+            $showerror = "Email address already exists.";
         } else {
-            $showerror = "Passwords do not match.";
+            if (mysqli_stmt_num_rows($stmt_check_username) > 0) {
+                $showerror = "Username already exists.";
+            } else {
+                if ($password == $cpassword) {
+
+                
+                    $plain_password = $password;
+                    
+                
+                $sql_insert = "INSERT INTO users (username, password, email ) VALUES (?, ?, ?)";
+                $stmt_insert = mysqli_prepare($conn, $sql_insert);
+                mysqli_stmt_bind_param($stmt_insert, "sss", $username, $plain_password, $email);
+                
+                    
+                if (mysqli_stmt_execute($stmt_insert)) {
+                $showalert = true;
+                } else {
+                $showerror = "Database error: " . mysqli_error($conn);
+                }
+                mysqli_stmt_close($stmt_insert);
+                    
+                } else {
+             $showerror = "Passwords do not match.";
+                }
+            }
         }
+        mysqli_stmt_close($stmt_check_email);
     }
-    mysqli_stmt_close($stmt_check);
+    // -------------------------
+    mysqli_stmt_close($stmt_check_username);
     mysqli_close($conn); // Close the connection
 }
 ?>
@@ -83,13 +106,18 @@ if ($showerror) {
             <input type="text" class="form-control" id="username" name="username" aria-describedby="emailHelp" required>
         </div>
         <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" required aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text" style="color: grey">We'll never share your email with anyone else.</div>
+        </div>
+        <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <input type="password" class="form-control" id="password" name="password" required>
         </div>
         <div class="mb-3">
             <label for="cpassword" class="form-label">Confirm your Password</label>
             <input type="password" class="form-control" id="cpassword" name="cpassword" required>
-            <div id="emailHelp" class="form-text" style="color: grey">Make sure to type the same password.</div>
+            <div id="passwordHelp" class="form-text" style="color: grey">Make sure to type the same password.</div>
             <div id="link" style="color:while; font-size: 18px"><a href="login.php" >Already have an account! Click here to login</a></div>
         </div>
         <button type="submit" class="btn btn-primary">Signup</button>

@@ -15,9 +15,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-link" href="index.php">LOGIN</a>
-                <a class="nav-link" href="signup.php">SignUp</a>
-                <a class="nav-link" href="logout.php">LOGOUT</a>
+                <a class="nav-link" href="/Login Project/index.php">LOGIN</a>
+                <a class="nav-link" href="/Login Project/View/signup.php">SignUp</a>
+                <a class="nav-link" href="/Login Project/View/logout.php">LOGOUT</a>
             </div>
         </div>
     </div>

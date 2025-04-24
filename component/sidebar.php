@@ -99,20 +99,20 @@
                     <div class="menu-heading">Dashboard</div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="/Login Project/welcome.php">
+                            <a class="nav-link" href="/Login Project/View/welcome.php">
                                 <i class="bi bi-house"></i> Home
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="welcome.php">
+                            <a class="nav-link active" href="/Login Project/welcome.php">
                                 <i class="bi bi-book"></i> Courses
                             </a>
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link " href="/Login Project/Pages/Add Courses.php">Add Courses</a>
+                                    <a class="nav-link " href="/Login Project/models/Courses/Add Courses.php">Add Courses</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link"  href="/Login Project/Pages/Manage courses.php">Manage Courses</a>
+                                    <a class="nav-link"  href="/Login Project/models/Courses/Manage Courses.php">Manage Courses</a>
                                 </li>
                             </ul>
                         </li>
@@ -122,10 +122,10 @@
                             </a>
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/Login Project/Pages/Add degree.php">Add Degree</a>
+                                    <a class="nav-link" href="/Login Project/models/Degrees/Add degree.php">Add Degree</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link " href="/Login Project/Pages/Manage degree.php">Manage Degrees</a>
+                                    <a class="nav-link " href="/Login Project/models/Degrees/Manage degree.php">Manage Degrees</a>
                                 </li>
                             </ul>
                         </li>
@@ -135,20 +135,20 @@
                             </a>
                             <ul class="nav flex-column sub-menu">
                                 <li class="nav-item">
-                                    <a class="nav-link " href="/Login Project/Pages/addstudent.php">Add Student</a>
+                                    <a class="nav-link " href="/Login Project/models/Students/addstudent.php">Add Student</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/Login Project/Pages/Manage students.php">Manage Student</a>
+                                    <a class="nav-link" href="/Login Project/models/Students/Manage students.php">Manage Student</a>
                                 </li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/Login Project/Pages/record.php">
+                            <a class="nav-link" href="/Login Project/models/Record/record.php">
                                 <i class="bi bi-file-earmark-text"></i> Record
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/Login Project/logout.php">
+                            <a class="nav-link" href="/Login Project/View/logout.php">
                                 <i class="bi bi-box-arrow-left"></i> Logout
                             </a>
                         </li>

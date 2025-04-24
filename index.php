@@ -2,7 +2,7 @@
 $login=false;
 $showerror =false;
 if ($_SERVER ["REQUEST_METHOD"]=="POST"){
-    include 'component/connection.php';
+    include 'config/connection.php';
     $identity = $_POST["username"]; // Using 'username' field for either username or email
     $password=$_POST["password"];
 
@@ -17,8 +17,7 @@ if ($_SERVER ["REQUEST_METHOD"]=="POST"){
         session_start();
         $_SESSION['loggedin']= true;
         $_SESSION['username']= $row['username']; // Store username in session
-        header ("location: welcome.php");
-
+        header("location: View/welcome.php");
     }
     else {
         $showerror="Invalid credentials";
@@ -79,8 +78,8 @@ if ($_SERVER ["REQUEST_METHOD"]=="POST"){
     </div>
 
     <button type="submit" class="btn btn-primary" style="width:100px">LOGIN</button>
-    <div id="link" style=" font-size: 18px"><a href="signup.php" >Don't have an account! Click here to create one</a>
-    <br><a href="forget_pass.php">Forgot Password?</a> <br>
+    <div id="link" style=" font-size: 18px"><a href="View/signup.php" >Don't have an account! Click here to create one</a>
+    <br><a href="component/forget_pass.php">Forgot Password?</a> <br>
 </div>
 </form>
     </div>
